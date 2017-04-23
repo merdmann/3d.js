@@ -1,8 +1,8 @@
 ---
 "extends":
   - walmart/rules/eslint/best-practices/on
-  - walmart/rules/eslint/es6/off
-  - walmart/rules/eslint/node/off
+  - walmart/rules/eslint/es6/on
+  - walmart/rules/eslint/node/on
 
  
 "plugins":
