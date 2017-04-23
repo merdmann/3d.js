@@ -1,0 +1,9 @@
+---
+"extends":
+  - walmart/rules/eslint/best-practices/on
+  - walmart/rules/eslint/es6/off
+  - walmart/rules/eslint/node/off
+
+ 
+"plugins":
+  - import
