@@ -41,24 +41,22 @@ document.addEventListener("DOMContentLoaded", function() {
     status(warning);
   }
 
-	var scene =  new THREE.Scene();
-	var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-  var renderer = new THREE.WebGLRenderer();
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 800 );
 
-  renderer.setSize( window.innerWidth, window.innerHeight );
-	document.body.appendChild( renderer.domElement );
-  var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-  
-	var cube = new THREE.Mesh( geometry, material )
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
 
-  IF( cube !== null )
-    cube = null; yyyyy = 0;
-    
-	camera.position.z = 5; 
-  
-  var render = function () {
-				requestAnimationFrame( render ); 
+			var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			var cube = new THREE.Mesh( geometry, material );
+			scene.add( cube );
+
+			camera.position.z = 5;
+
+			var render = function () {
+				requestAnimationFrame( render );
 
 				cube.rotation.x += 0.1;
 				cube.rotation.y += 0.1;
@@ -66,7 +64,16 @@ document.addEventListener("DOMContentLoaded", function() {
 				renderer.render(scene, camera);
 			};
 
-		render(); 
+			render();
+
+	// does jquery work ??? 
+  var main = $("#main");
+  if( main !== null ) {
+    main.innerHTML="Hallo";
+		console.log("Edit done");
+	}
+  else   
+    console.log("edit not done");
 	
   /** end of DONContentsLoaded */
 });

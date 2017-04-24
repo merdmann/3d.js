@@ -3,36 +3,36 @@
 <head>
   <meta charset="utf-8">
   <title>Space</title>
+  <meta charset=utf-8>	 
+  <style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+  </style>
 
   <!-- fix: http://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined --> 
   <!-- Insert this line above script imports  -->
   <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <!--[if lt IE 9 ]>
-  <link rel="stylesheet" href="ink-ie.min.css" type="text/css">
-  <![endif]-->
-  <link href="asset/ink-3.1.10/css/ink.min.css" type="text/css" media="screen">
-  <script type="text/javascript" src="js/detector.js"></script>
+  <link rel="stylesheet" href="ink-ie.min.css" type="text/css"> 
+  <!--[endif]-->
+  <link rel="stylesheet" href="asset/ink-3.1.10/css/ink.css" type="text/css">
+  <script type="text/javascript" src="asset/detector.js"></script>
+    
+  <script src="asset/jquery-min.js"></script>    
 
   <!-- normal script imports etc  -->
-  <script src="asset/jquery.min.js"></script>    
-
   <script src="asset/ink-3.1.10/js/ink-all.js" type="text/javascript"></script>
   <script src="asset/ink-3.1.10/js/autoload.js" type="text/javascript"></script>
 
   <!-- Insert this line after script imports -->
   <script>if (window.module) module = window.module;</script>
-</head>
+
+</head>          
 <body>
-  		<title>Spaces</title>
-  		<style>
-  			body { margin: 0; }
-  			canvas { width: 100%; height: 100% }
-  		</style>
-  	</head>
-  	<body>
 
-<div class="orange">This is an ink class</div>
 
+
+<p id="main" class="extralarge fw-700 uppercase orange">This is an ink text</p>
 <nav class="ink-navigation">
     <ul class="menu horizontal black">
         <li class="heading active"><a href="#">Home</a></li>
@@ -50,7 +50,7 @@
 </nav>
  
 <div class="ink-grid">
-    <div class="column-group">
+    <div class="column-group horizontal-gutters">
 		<h2>Test</h2>
     		<div class="all-50">
     	</div>
@@ -59,7 +59,7 @@
     </div>
 </div>
 
-    <script src="app.js"></script>
+    <script src="app.js" type="text/javascript"></script>
     
 	<div id="statusbar-info" 
 	   style="position: fixed; bottom: 0px; left: 0px; width: 100%; color: #fff; background: #000;">
