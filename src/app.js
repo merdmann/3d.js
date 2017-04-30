@@ -15,9 +15,6 @@ const appDir = jetpack.cwd(app.getAppPath());
 // Holy crap! This is browser window with HTML and stuff, but I can read
 // here files form disk like it's node.js! Welcome to Electron world :)
 const manifest = appDir.read("package.json", "json");
-
-
- 
 /**
  * status bar
  *
@@ -28,75 +25,63 @@ function status(warning) {
   document.getElementById("statusbar-info").innerHTML = warning; 
 }
 
+var hunter = 2480517;
+var hunted = 2888574;  
+
+// 2480517 Bussard
+// 2888574 Mouse
+function loadGBIFData(anchor, gbifId ) {
+
+    var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        zoom: 0, 
+	      maxZoom: 18, attribution: '[insert correct attribution here!]' });
+
+ //  var map = L.map(anchor).setView([52, 13], 13);
+    var map = L.map(anchor, { center: new L.LatLng(51.5, 10), zoom: 0, layers: [osm] });
+
+    status("Loading data " + anchor + "//" + gbifId );
+    var gbi = L.tileLayer( "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + gbifId + "&layer=OBS_2010_2020&layer=LIVING&hue=0.9&palette=yellows_reds", {
+                 attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5, appId: "457d718f712a87a666b58ae28239b835" });
+    var city = L.OWM.current({intervall: 15, lang: 'de'});
+    status("Loading done");
+  
+    var baseMaps = { "OSM Standard": osm };
+    var overlayMaps = { "Clouds": clouds, "Cities": city, "GBI": gbi };
+
+    var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    L.marker([52, 13]).addTo(map)
+    .bindPopup('Center fo the world')
+    .openPopup();
+
+}
+
+//    landUrl = 'http://{s}.tile.thunderforest.com/landscape/{z}/{x}/{y}.png',
+//    thunAttrib = '&copy; '+osmLink+' Contributors & '+thunLink;
+
+function getSelection(anchor) {
+      var e = document.getElementById(anchor);
+      return e.options[e.selectedIndex].value;
+}
+
 /**
  * We draw when the document is available 
  */
-document.addEventListener("DOMContentLoaded", function() {
-  
-    // Create a World Window for the canvas.
-    var wwd = new WorldWind.WorldWindow("canvasOne");
+document.addEventListener("DOMContentLoaded", function() {  
+    loadGBIFData( "hunter",  2480517 );
+    loadGBIFData( "mouse",  2888574);
+    
+    document.getElementById("btn-refresh").addEventListener("click", function() {
+      console.log("REFRESH");
 
-// Define layers to populate the World Window
-  var layers = [
-    {layer: new WorldWind.BMNGLayer(), enabled: true},
-    {layer: new WorldWind.BMNGLandsatLayer(), enabled: false},
-    {layer: new WorldWind.BingAerialLayer(null), enabled: false},
-    {layer: new WorldWind.BingAerialWithLabelsLayer(null), enabled: true},
-    {layer: new WorldWind.BingRoadsLayer(null), enabled: false},
-    {layer: new WorldWind.CompassLayer(), enabled: true},
-    {layer: new WorldWind.CoordinatesDisplayLayer(wwd), enabled: true},
-    {layer: new WorldWind.ViewControlsLayer(wwd), enabled: true}  
-  	];
+      var hunter = getSelection("inp-hunter");
+      var hunted = getSelection("inp-hunted");
 
-// Create those layers.
-    for (var l = 0; l < layers.length; l++) {
-      layers[l].layer.enabled = layers[l].enabled;
-      wwd.addLayer(layers[l].layer);
-
-  wwd.navigator.lookAtLocation.latitude = 52;
-  wwd.navigator.lookAtLocation.longitude = 13;
-  wwd.navigator.range = 50000; // 50KM
-
-  placeMarker(52,  13, "Center of the World"  );
-
-  getEventData( );
-  getGBIFdata();
-};
-
-function placeMarker(latitude, longitude, text) {
-
-    var pinLibrary = WorldWind.WWUtil.currentUrlSansFilePart() + "/../images/pushpins/"; // location of the image files
-    var placemarkLayer = new WorldWind.RenderableLayer("Placemarks");
-    var placemark = new WorldWind.Placemark(new WorldWind.Position(latitude, longitude, 50000), false, null);
-    placemark.label = text;       
-    placemark.altitudeMode = WorldWind.RELATIVE_TO_GROUND;
-
-    var placemarkAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
-          // Set up the common placemark attributes.
-    placemarkAttributes.imageScale = 1;
-    placemarkAttributes.imageOffset = new WorldWind.Offset(
-            WorldWind.OFFSET_FRACTION, 0.3,
-            WorldWind.OFFSET_FRACTION, 0.0);
-    placemarkAttributes.imageColor = WorldWind.Color.WHITE;
-    placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
-            WorldWind.OFFSET_FRACTION, 0.5,
-            WorldWind.OFFSET_FRACTION, 1.0);
-    placemarkAttributes.labelAttributes.color = WorldWind.Color.YELLOW;
-    placemarkAttributes.drawLeaderLine = true;
-    placemarkAttributes.leaderLineAttributes.outlineColor = WorldWind.Color.RED;
-    placemarkAttributes.imageSource = pinLibrary + "castshadow-red.png";
-    placemark.attributes = placemarkAttributes;
-
-    var highlightAttributes = new WorldWind.PlacemarkAttributes(placemarkAttributes);
-    highlightAttributes.imageScale = 5.0;
-    placemark.highlightAttributes = highlightAttributes;
-
-            // Add the placemark to the layer.
-    placemarkLayer.addRenderable(placemark);
-
-    wwd.addLayer(placemarkLayer);
-}
-
+      console.log( hunter + "//" + hunted)
+    });
 
 function getEventData() {
   var ojson = { "source":  "BCWILDFIRE" };
@@ -109,16 +94,6 @@ function getEventData() {
   });
 
 }; /* getEventData */
-
-
-
-function getGBIFdata() {
-  var map = L.map("hunter").setView([52, 13], 13);
-
-  L.tileLayer( "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=2480517&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds", { 
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
-}
 
   /** end of DONContentsLoaded */
 });
