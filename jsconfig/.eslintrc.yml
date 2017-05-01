@@ -1,9 +1,14 @@
----
-"extends":
-  - walmart/rules/eslint/best-practices/on
-  - walmart/rules/eslint/es6/on
-  - walmart/rules/eslint/node/on
-
+env:
+  browser: true
+  es6: true
+extends:
+   - "walmart/rules/eslint/best-practices/on"
+   - "walmart/rules/eslint/es6/off"
+   - "walmart/rules/eslint/node/on"
  
-"plugins":
-  - import
+parserOptions:
+  sourceType: module
+rules:
+  indent:
+    - error
+    - 4
