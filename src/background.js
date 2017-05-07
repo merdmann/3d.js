@@ -27,7 +27,7 @@ const setApplicationMenu = () => {
 // on same machine like those are two separate apps.
 if (env.name !== 'production') {
   const userDataPath = app.getPath('userData');
-  app.setPath('userData', `${userDataPath} (${env.name})`);
+ // app.setPath('userData', `${userDataPath} (${env.name})`);
 }
 
 app.on('ready', () => {
@@ -44,9 +44,9 @@ app.on('ready', () => {
     slashes: true,
   }));
 
-  if (env.name === 'development') {
-    mainWindow.openDevTools();
-  }
+  //if (env.name === 'development') {
+  //  mainWindow.openDevTools();
+  //}
 });
 
 app.on('window-all-closed', () => {

@@ -1,4 +1,0 @@
-{
-  "eslint.options": { "configFile": "c:Users/micha/Sources/electron-boilerplate/eslintrc.yml" },
-  "eslint.validate": [ "javascript", "javascriptreact", { "language": "html", "autoFix": true } ]
-}
