@@ -11,12 +11,16 @@ import {remote} from "electron";
 import jetpack from "fs-jetpack";
 import env from "./env";
 
+const log = require("fancy-log");
+
 const app = remote.app;
 const appDir = jetpack.cwd(app.getAppPath());
 
 // Holy crap! This is browser window with HTML and stuff, but I can read
 // here files form disk like it's node.js! Welcome to Electron world :)
 const manifest = appDir.read("package.json", "json");
+
+const BERLIN = [50.507222, 13.145833];
 
 /**
  * 
@@ -30,7 +34,7 @@ const status = function (warning) {
 var hunter = 2480517;
 var hunted = 2888574; 
 
-var map = []; 
+var layerControl = false;
 
 /**
  * This function loads the map from the GBIF mapo interface and presents it 
@@ -38,34 +42,42 @@ var map = [];
  * 
  * @param {any} anchor  - location on the screen
  * @param {any} gbifId  - gbfid of the species of interest.
- */
-const loadGBIFData = function (anchor, gbifId ) {
-    var osm = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {   
-        zoom: 0, 
-        maxZoom: 18, attribution: "copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors" });
-
-    if( !(anchor in map) ) {
-        map[anchor] = L.map(anchor, {center: new L.LatLng(51.5, 10), zoom: 0, layers: [osm]});
-    }
+ *
+ /* const osmurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+    const osmattribution = "&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors";
+    const gbifurl = "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + gbifId + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds";
+    const gbifattribution = "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors";
     
-    status("Loading data " + anchor + "//" + gbifId );
-    var gbi = L.tileLayer( "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + gbifId + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds", {
-        attribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors"
-    }).addTo(map[anchor])
+    const topomapurl = "http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
+    const topomapattribution = "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet";
+*/
 
-    var clouds = L.OWM.clouds({showLegend: false, opacity: 0.5, appId: "457d718f712a87a666b58ae28239b835" });
-    var city = L.OWM.current({intervall: 15, lang: 'de'});
+const TopoURL ="http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
+
+const OSMurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + key + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds" };
+
+const showMap = function (center, anchor, species) {
+    log.info("showMap(" + center + ", " + anchor + ")");
+    var layerControl = null;
+
+    //  the topology map
+    var topoMap = L.tileLayer(TopoURL, { attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet"})
+    var gbifMap = L.tileLayer(GBIFurl(species), { atribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors" })
+
+    var map = L.map(anchor, { layers:[topoMap]}).setView(center, 13);
+
+    var EventsLayer = getEventData();
+
+
+    if(layerControl === null) {  // var layerControl set to false in init phase; 
+        log.info("Addind layerconrol to map");
+        layerControl = L.control.layers({ "Topology": topoMap}, { "GBIF": gbifMap }).addTo(map);
+    }       
+    layerControl.addOverlay(EventsLayer, "Events");
     status("Loading done");
-  
-    var baseMaps = { "OSM Standard": osm };
-    var overlayMaps = { "Clouds": clouds, "Cities": city, "GBI": gbi };
 
-    var layerControl = L.control.layers(baseMaps, overlayMaps).addTo(map[anchor]);
-  
-    console.log("Hallo");
-    L.marker([52, 13]).addTo(map[anchor])
-    .bindPopup('My location')
-    .openPopup();
+    return map;
 }
 
 /**
@@ -75,47 +87,67 @@ const loadGBIFData = function (anchor, gbifId ) {
  * @returns 
  */
 function getSelection(anchor) {
-      var e = document.getElementById(anchor);
-      return e.options[e.selectedIndex].value;
+    var e = document.getElementById(anchor);
+    return e.options[e.selectedIndex].value;
 }
 
 /**
  * We draw when the document is available 
  */
 document.addEventListener("DOMContentLoaded", function() {  
-    loadGBIFData( "hunter", 2480517 );
-    loadGBIFData( "mouse", 2888574 );
+    log.info("DOM Tree loaded");
+    
+    showMap( BERLIN, "hunter", 2480517 );
+    showMap( BERLIN, "mouse", 2480517 );
 
-    API();
 
     document.getElementById("btn-refresh").addEventListener("click", function() {
-      console.log("REFRESH");
+        log.info("REFRESH");
 
-      var hunter = getSelection("inp-hunter");
-      var hunted = getSelection("inp-hunted");
+        showMap(BERLIN, "hunter");
 
-      console.log( hunter + "//" + hunted)
-      loadGBIFData( "hunter",  hunter );
-      loadGBIFData( "mouse",  hunted );
-
-      document.getElementById("lbl-hunter").innerHTML = "Species: " + hunter;
-      document.getElementById("lbl-pray").innerHTML = "Species: " +  hunted;
+        document.getElementById("lbl-hunter").innerHTML = "Species: " + hunter;
+        document.getElementById("lbl-pray").innerHTML = "Species: " + hunted;
     });
 });    /** end of DONContentsLoaded */
 
 
-
-const getEventData = function() {
-  var ojson = { "source":  "BCWILDFIRE" };
-  var strJSON = encodeURIComponent(JSON.stringify(ojson));
+/**
+ * Get event Data anmd create a layer
+ */
+const getEventData = function(map) {
+    var ojson = { "source":  "BCWILDFIRE" };
+    var strJSON = encodeURIComponent(JSON.stringify(ojson));
 
     $.ajax({ dataType: "json", url: "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events", data: encodeURIComponent(JSON.stringify(ojson)), 
         success: function( data, text, jqxhdr ) { 
-            data.events.forEach(function (event) { console.log("geometries:" + event.geometries.coordinates)}); }
+            data.events.forEach(function (event) { 
+                console.log( "titel: " + event.title );
+                console.log( "     " + event.link);
+                
+                L.geoJSON(event.geometries, {
+                    style: function (feature) {
+                        return {color: feature.properties.color};
+                    },
+                    
+                    pointToLayer: function(geoJsonPoint, latlng) {
+                        return L.marker(latlng, {title: event.title });
+                    }
+                    
+                }).bindPopup(function (layer) {
+                    return layer.feature.properties.description;
+                });
+
+            
+            });
+        }    
     });
 };
 
-const API = function () {
+/**
+ * GBIF API Inteface
+ */
+const GBIF_Species = function (name, cb ) {
     const username = "michael.erdmann@snafu.de";
     const password = "Dieter#10";
 
@@ -123,10 +155,11 @@ const API = function () {
         type: "GET",
         url: "http://api.gbif.org/v1/species/match",
         dataType: "json",  
+        contentType: "application/json; charset=utf-8",
 
-        data: JSON.stringify( {"request": {"name": "Puma concolor"}}),
+        data: $.param({ name: name}),
         headers: { "Authorization": "Basic " + btoa( username + ":" + password )},
-        success: function( resp ) { console.log("Success"); console.log(resp)},
+        success: function( resp ) { cb(resp); },
     }).done( function () {console.log("Auth done")});
      
 };
