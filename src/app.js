@@ -1,6 +1,7 @@
-/*
- *
+/**
+ * 
  */
+
 
 // Small helpers you might want to keep
 import "./helpers/context_menu.js";
@@ -57,6 +58,12 @@ const TopoURL ="http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
 const OSMurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + key + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds" };
 
+/**
+ * 
+ * @param {latlong*} center 
+ * @param {string} anchor - the html elemenmte where thr maps should go 
+ * @param {*} species  -- gbifg code f the sepcies to show
+ */
 const showMap = function (center, anchor, species) {
     log.info("showMap(" + center + ", " + anchor + ")");
     var layerControl = null;
@@ -118,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
 const getEventData = function(map) {
     var ojson = { "source":  "BCWILDFIRE" };
     var strJSON = encodeURIComponent(JSON.stringify(ojson));
+    var eventsLayer = L.layerGroup();
 
     $.ajax({ dataType: "json", url: "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events", data: encodeURIComponent(JSON.stringify(ojson)), 
         success: function( data, text, jqxhdr ) { 
@@ -125,23 +133,12 @@ const getEventData = function(map) {
                 console.log( "titel: " + event.title );
                 console.log( "     " + event.link);
                 
-                L.geoJSON(event.geometries, {
-                    style: function (feature) {
-                        return {color: feature.properties.color};
-                    },
-                    
-                    pointToLayer: function(geoJsonPoint, latlng) {
-                        return L.marker(latlng, {title: event.title });
-                    }
-                    
-                }).bindPopup(function (layer) {
-                    return layer.feature.properties.description;
-                });
-
-            
+                eventsLayer.addLayer(L.geoJSON(event.geometries, { properties: {popupContent: event.title}} ));        
             });
         }    
     });
+
+    return eventsLayer;
 };
 
 /**
