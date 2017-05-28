@@ -32,6 +32,7 @@ const status = function (warning) {
     document.getElementById("statusbar-info").innerHTML = warning; 
 }
 
+var eventSources = null;
 var hunter = 2480517;
 var hunted = 2888574; 
 
@@ -94,36 +95,59 @@ const showMap = function (center, anchor, species) {
  * @returns 
  */
 function getSelection(anchor) {
-    var e = document.getElementById(anchor);
+    var  e = document.getElementById(anchor);
     return e.options[e.selectedIndex].value;
 }
 
 /**
+ * 
+ * 
  * We draw when the document is available 
  */
 document.addEventListener("DOMContentLoaded", function() {  
     log.info("DOM Tree loaded");
+
+    const categories = jetpack.read("category.json", "json");
     
-    showMap( BERLIN, "hunter", 2480517 );
-    showMap( BERLIN, "mouse", 2480517 );
+    var select = document.createElement("select");
+    select.setAttribute("Id", "event-sources" );
+
+    categories.categories.forEach( function(o, index) {
+        var option = document.createElement("option");
+        option.text = o.title;
+        select.add(option);
+    });
+
+    var location = document.getElementById("sources");
+    location.appendChild(select);
+    
+    eventSources = getSelection( "event-sources")
+    hunter = getSelection( "inp-hunter");
+    hunted = getSelection("inp-hunted");
+
+    showMap( BERLIN, "hunter", hunter );
+    showMap( BERLIN, "mouse", hunted );
 
 
     document.getElementById("btn-refresh").addEventListener("click", function() {
         log.info("REFRESH");
 
-        showMap(BERLIN, "hunter");
+       
 
         document.getElementById("lbl-hunter").innerHTML = "Species: " + hunter;
         document.getElementById("lbl-pray").innerHTML = "Species: " + hunted;
+   
     });
 });    /** end of DONContentsLoaded */
+
+
 
 
 /**
  * Get event Data anmd create a layer
  */
-const getEventData = function(map) {
-    var ojson = { "source":  "BCWILDFIRE" };
+const getEventData = function( ) {
+    var ojson = { "source": eventSources };
     var strJSON = encodeURIComponent(JSON.stringify(ojson));
     var eventsLayer = L.layerGroup();
 
@@ -133,7 +157,7 @@ const getEventData = function(map) {
                 console.log( "titel: " + event.title );
                 console.log( "     " + event.link);
                 
-                eventsLayer.addLayer(L.geoJSON(event.geometries, { properties: {popupContent: event.title}} ));        
+                eventsLayer.addLayer(L.geoJSON(event.geometries, { properties: {popupContent: "Title missing..."}} ));        
             });
         }    
     });
@@ -149,8 +173,8 @@ const GBIF_Species = function (name, cb ) {
     const password = "Dieter#10";
 
     $.ajax({
-        type: "GET",
-        url: "http://api.gbif.org/v1/species/match",
+        type: "GET",
+        url: "http://api.gbif.org/v1/species/match",
         dataType: "json",  
         contentType: "application/json; charset=utf-8",
 

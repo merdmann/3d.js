@@ -2,6 +2,9 @@
 
 Actually the hackerton was a complete failure since the location in Berlin was cancelled on a very short notice. At the end i was my own team working from my home office; which does not matches the spirit of the hackerton at all.
 
+But finally i decided to continue the thing.
+
+
 
 
 # Quick start
