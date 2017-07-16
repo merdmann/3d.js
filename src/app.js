@@ -129,13 +129,11 @@ document.addEventListener("DOMContentLoaded", function() {
     showMap( BERLIN, "mouse", hunted );
 
 
-    document.getElementById("btn-refresh").addEventListener("click", function() {
+    $("btn-refresh").addEvent("click", function() {
         log.info("REFRESH");
 
-       
-
-        document.getElementById("lbl-hunter").innerHTML = "Species: " + hunter;
-        document.getElementById("lbl-pray").innerHTML = "Species: " + hunted;
+        $("lbl-hunter").innerHTML = "Species: " + hunter;
+        $("lbl-pray").innerHTML = "Species: " + hunted;
    
     });
 });    /** end of DONContentsLoaded */
@@ -146,6 +144,7 @@ document.addEventListener("DOMContentLoaded", function() {
 /**
  * Get event Data anmd create a layer
  */
+/** 
 const getEventData = function( ) {
     var ojson = { "source": eventSources };
     var strJSON = encodeURIComponent(JSON.stringify(ojson));
@@ -163,7 +162,27 @@ const getEventData = function( ) {
     });
 
     return eventsLayer;
-};
+};*/
+
+
+
+const getEventData = function () {
+    new Request.JSONP({
+        url: "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events", 
+        callbackKey: 'jsoncallback',
+        data: {
+            source: eventSources
+    },
+
+    onRequest: function(url){
+        // a script tag is created with a src attribute equal to url
+    },
+    onComplete: function(data){
+        // the request was completed.
+        console.log("requeest completed");
+    }
+}).send();
+}
 
 /**
  * GBIF API Inteface
