@@ -31,6 +31,7 @@
     "debug": "./node_modules/.bin/electron app/background.js --debug-brk=5858"
   },
   "dependencies": {
+    "chai": "^3.5.0",
     "eslint-config-defaults": "^9.0.0",
     "eslint-plugin-import": "^2.2.0",
     "fs-jetpack": "^0.12.0",

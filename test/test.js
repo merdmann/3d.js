@@ -4,18 +4,27 @@
  * 
  */
 const path = require('path');
-const electronPath = path.join(__dirname, '..', 'node_modules', '.bin', 'electron');
+const chai = require('chai');
+const chaiAsPromised = require('chai-as-promised');
+
 const appPath = path.join(__dirname, '..', "app", "background.js");
 
-var Application = require('spectron').Application
-var assert = require('assert')
+const Application = require('spectron').Application;
+const assert = require('assert');
+const  electron = require("electron")
+
+global.before(function () {
+  chai.should();
+  chai.use(chaiAsPromised);
+});
 
 describe('application launch', function () {
-  this.timeout(10000)
+  this.timeout(10000);
+
 
   beforeEach(function () {
     this.app = new Application({
-      "path" : electronPath,
+      "path" : electron,
       "args" : [appPath]
     })
     return this.app.start();
@@ -27,8 +36,17 @@ describe('application launch', function () {
     }
   })
 
-  it("refresh the screen", function () {
+  it( "it shows the right title", function () {
+    return this.app.client.waitUntilWindowLoaded().getTitle().should.eventually.equal("TRaveling Gemes")
+  })
+
+
+  it( "refresh the screen", function () {
     var btnRefresh = this.app.client.element('//button/*[text(),Refresh]');
+
+    this.app.client.waitUntilWindowLoaded();
+
+    console.log("btnRefresh" + btnRefresh );
 
     btnRefresh.click();
 

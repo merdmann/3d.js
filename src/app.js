@@ -2,7 +2,6 @@
  * 
  */
 
-
 // Small helpers you might want to keep
 import "./helpers/context_menu.js";
 import "./helpers/external_links.js";
@@ -18,7 +17,7 @@ const app = remote.app;
 const appDir = jetpack.cwd(app.getAppPath());
 
 // Holy crap! This is browser window with HTML and stuff, but I can read
-// here files form disk like it's node.js! Welcome to Electron world :)
+// here files form disk like it's node.js! Welcome to Electron whttps://start.fedoraproject.org/orld :)
 const manifest = appDir.read("package.json", "json");
 
 const BERLIN = [50.507222, 13.145833];
@@ -79,7 +78,7 @@ const showMap = function (center, anchor, species) {
 
 
     if(layerControl === null) {  // var layerControl set to false in init phase; 
-        log.info("Addind layerconrol to map");
+        log.info("Adding layerconrol to map");
         layerControl = L.control.layers({ "Topology": topoMap}, { "GBIF": gbifMap }).addTo(map);
     }       
     layerControl.addOverlay(EventsLayer, "Events");
@@ -140,32 +139,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-
-/**
- * Get event Data anmd create a layer
- */
-/** 
-const getEventData = function( ) {
-    var ojson = { "source": eventSources };
-    var strJSON = encodeURIComponent(JSON.stringify(ojson));
-    var eventsLayer = L.layerGroup();
-
-    $.ajax({ dataType: "json", url: "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events", data: encodeURIComponent(JSON.stringify(ojson)), 
-        success: function( data, text, jqxhdr ) { 
-            data.events.forEach(function (event) { 
-                console.log( "titel: " + event.title );
-                console.log( "     " + event.link);
-                
-                eventsLayer.addLayer(L.geoJSON(event.geometries, { properties: {popupContent: "Title missing..."}} ));        
-            });
-        }    
-    });
-
-    return eventsLayer;
-};*/
-
-
-
 const getEventData = function () {
     new Request.JSONP({
         url: "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events", 
@@ -201,5 +174,5 @@ const GBIF_Species = function (name, cb ) {
         headers: { "Authorization": "Basic " + btoa( username + ":" + password )},
         success: function( resp ) { cb(resp); },
     }).done( function () {console.log("Auth done")});
-     
+
 };
