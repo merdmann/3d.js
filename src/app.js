@@ -161,7 +161,10 @@ const getEventData = function (source) {
             log.info("onRequest()");
         },
         onSuccess: function(responseText){
-            log.info(responseText)
+            var o = JSON.parse(responseText)
+            for (var key in o) {
+                log.info("key:" + key + " " + o[key]);
+            }
         },
         onFailure: function(){
             log.error("Sorry, your request failed");
