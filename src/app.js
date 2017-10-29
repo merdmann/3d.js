@@ -54,7 +54,6 @@ var layerControl = false;
 */
 
 const TopoURL ="http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
-
 const OSMurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + key + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds" };
 
@@ -65,25 +64,30 @@ const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/til
  * @param {*} species  -- gbifg code f the sepcies to show
  */
 const showMap = function (center, anchor, species) {
-    log.info("showMap(" + center + ", " + anchor + ")");
-    var layerControl = null;
 
-    //  the topology map
-    var topoMap = L.tileLayer(TopoURL, { attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet"})
-    var gbifMap = L.tileLayer(GBIFurl(species), { atribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors" })
+    try {
+        log.info("showMap(" + center + ", " + anchor + ")");
+        var layerControl = null;
 
-    var map = L.map(anchor, { layers:[topoMap]}).setView(center, 13);
+        //  the topology map
+        var topoMap = L.tileLayer(TopoURL, { attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet"})
+        var gbifMap = L.tileLayer(GBIFurl(species), { atribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors" })
+        var map = L.map(anchor, { center: center, zoom: 4, layers: [topoMap, gbifMap] }  );
 
-    var EventsLayer = getEventData();
+        log.info("requesting events")
 
+        var EventsLayer = getEventData(eventSources);
 
-    if(layerControl === null) {  // var layerControl set to false in init phase; 
-        log.info("Adding layerconrol to map");
-        layerControl = L.control.layers({ "Topology": topoMap}, { "GBIF": gbifMap }).addTo(map);
-    }       
-    layerControl.addOverlay(EventsLayer, "Events");
-    status("Loading done");
-
+        if(layerControl === null) {  // var layerControl set to false in init phase; 
+            log.info("Adding layerconrol to map");
+            layerControl = L.control.layers( {"Topology": topoMap}, { "GBIF": gbifMap }).addTo(map);
+        }       
+        layerControl.addOverlay(EventsLayer, "Events");
+        status("Loading done");
+    }
+    catch( error ) {
+        log.error( "Exception: " + error )
+    }
     return map;
 }
 
@@ -99,8 +103,6 @@ function getSelection(anchor) {
 }
 
 /**
- * 
- * 
  * We draw when the document is available 
  */
 document.addEventListener("DOMContentLoaded", function() {  
@@ -124,12 +126,17 @@ document.addEventListener("DOMContentLoaded", function() {
     hunter = getSelection( "inp-hunter");
     hunted = getSelection("inp-hunted");
 
+   
     showMap( BERLIN, "hunter", hunter );
-    showMap( BERLIN, "mouse", hunted );
-
-
+    showMap( BERLIN, "pray", hunted );
+ 
     $("btn-refresh").addEvent("click", function() {
         log.info("REFRESH");
+     
+        showMap( BERLIN, "hunter", hunter );
+        showMap( BERLIN, "mouse", hunted );
+
+        getEventData(eventSources);
 
         $("lbl-hunter").innerHTML = "Species: " + hunter;
         $("lbl-pray").innerHTML = "Species: " + hunted;
@@ -137,25 +144,34 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });    /** end of DONContentsLoaded */
 
+/**
+ * 
+ * https://eonet.sci.gsfc.nasa.gov/docs/v2.1
+ * 
+ * @param {*} source 
+ */
+const getEventData = function (source) {
+    log.info("getEventData(" + source + ")");
 
+    // create a new Class instance
+    var myRequest = new Request({
+        url: 'https://eonet.sci.gsfc.nasa.gov/api/v2.1/events',
+        method: 'get',
+        onRequest: function() {
+            log.info("onRequest()");
+        },
+        onSuccess: function(responseText){
+            log.info(responseText)
+        },
+        onFailure: function(){
+            log.error("Sorry, your request failed");
+        }
+    })
 
-const getEventData = function () {
-    new Request.JSONP({
-        url: "https://eonet.sci.gsfc.nasa.gov/api/v2.1/events", 
-        callbackKey: 'jsoncallback',
-        data: {
-            source: eventSources
-    },
-
-    onRequest: function(url){
-        // a script tag is created with a src attribute equal to url
-    },
-    onComplete: function(data){
-        // the request was completed.
-        console.log("requeest completed");
-    }
-}).send();
+    myRequest.send({ source: source });
 }
+
+
 
 /**
  * GBIF API Inteface

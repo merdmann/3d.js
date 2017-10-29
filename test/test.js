@@ -43,11 +43,9 @@ describe('application launch', function () {
 
   it( "refresh the screen", function () {
     var btnRefresh = this.app.client.element('//button/*[text(),Refresh]');
-
+    
     this.app.client.waitUntilWindowLoaded();
-
     console.log("btnRefresh" + btnRefresh );
-
     btnRefresh.click();
 
     // check the result
