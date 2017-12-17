@@ -73,6 +73,8 @@ const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/til
  */
 const showMap = function (center, anchor, species) {
 
+	var map = [];
+	
     try {
         log.info("showMap(" + center + ", " + anchor + ")");
         var layerControl = null;
@@ -80,13 +82,13 @@ const showMap = function (center, anchor, species) {
         //  the topology map
         var topoMap = L.tileLayer(TopoURL, { attribution: "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet"})
         var gbifMap = L.tileLayer(GBIFurl(species), { atribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors" })
-        var map = L.map(anchor, { center: center, zoom: 4, layers: [topoMap, gbifMap] }  );
+        map[anchor] = L.map(anchor, { center: center, zoom: 4, layers: [topoMap, gbifMap] }  );
 
-        EventLayer = L.geoJSON().addTo(map);
+        EventLayer = L.geoJSON().addTo(map[anchor]);
 
         if(layerControl === null) {  // var layerControl set to false in init phase; 
             log.info("Adding layerconrol to map");
-            layerControl = L.control.layers( {"Topology": topoMap}, { "GBIF": gbifMap }, {"Events": EventLayer}).addTo(map);
+            layerControl = L.control.layers( {"Topology": topoMap}, { "GBIF": gbifMap }, {"Events": EventLayer}).addTo(map[anchor]);
         }       
         layerControl.addOverlay(EventLayer, "Events");
         status("Loading done");
@@ -94,7 +96,7 @@ const showMap = function (center, anchor, species) {
     catch( error ) {
         log.error( "Exception: " + error )
     }
-    return map;
+    return map[anchor]
 }
 
 /**
@@ -125,25 +127,24 @@ const redraw = function() {
 /**
  * load event data and process the result after the interacton is donw
  */
-const getData = function () {
+const getExternalData = function () {
 	var myChain = new Chain();
 
 	myChain.chain(
-		function() {
+		function() { 
             getEventData(eventSources, myChain);
         },
 		function() {
         	var i = 0;
         	
         	for( i in events) {
-        		if( events[i] !== null && events[i].titile !== null) {
-        			log.info( events[i].title)
+        		if( events[i] !== null && events[i].title !== null) {
+        			log.info( events[i])
         			EventLayer.addData(events[i].geometries);
         		}
         		
         	}
-            redraw(); 
-            
+            //redraw(); 
         }
 	)
 	myChain.callChain();
@@ -193,7 +194,7 @@ document.addEventListener("DOMContentLoaded", function() {
  
     $("btn-refresh").addEvent("click", function() {
     	log.info("Refresh");
-    	getData();
+    	getExternalData();
     });
 });    /** end of DONContentsLoaded */
 
