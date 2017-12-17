@@ -3,7 +3,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>TRaveling Gemes</title>
+    <title>Traveling genes</title>
 </head>
   <!-- fix: http://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined --> 
   <!-- Insert this line above script imports  -->
@@ -32,7 +32,7 @@
 
   <!-- Insert this line after script imports -->
   <script>if (window.module) module = window.module;</script>
-
+  
 <body>  
 
 <div>
@@ -42,17 +42,16 @@
 <option value="16969">Jellyfish</option>
 <option value="9648">Bed Bugs</option>
 </select>
-<div id="sources">
-</select>
 
 <select id="inp-hunted">
 <option value="2480517">Bussard</option>
 <option value="8754853">Rabbit</option>
 <option value="2888574">Mice</option>
 </select>
+<select id="event-sources">
+</select>
 <button id="btn-refresh" class="ink-button green" type="button">Refresh</button> 
 </div>
-
 <div class="row"> 
 <h2>Hunter<label id="lbl-hunter"></label></h2>
 <div class="six columns" id="hunter" style="height: 500px; width: 700px" ></div>
@@ -61,17 +60,12 @@
 <div class="row">
 <h2>Pray<label id="lbl-pray"></label></h2>
 
-<div class"six columns" id="pray" style="height: 500px; width: 700px" ></div>
+<div class="six columns" id="pray" style="height: 500px; width: 700px" ></div>
 </div>
-
-<select id="events">
-    <script>
-    </script>
-</select>
 
 <script src="app.js"></script>    
 
-</div>        
+<div>        
 	<div class="row" id="statusbar-info" 
 	   style="position: fixed; bottom: -10px; left: 0px; width: 100%; color: #fff; background: #000;">
     </div>

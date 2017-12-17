@@ -17,11 +17,12 @@ const app = remote.app;
 const appDir = jetpack.cwd(app.getAppPath());
 
 // Holy crap! This is browser window with HTML and stuff, but I can read
-// here files form disk like it's node.js! Welcome to Electron whttps://start.fedoraproject.org/orld :)
+//ap = L.tileLayer(GBIFurl(species), { atribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors" })
+var map = null;
 const manifest = appDir.read("package.json", "json");
 
 const BERLIN = [50.507222, 13.145833];
-
+	
 /**
  * 
  * @param {string} warning - some text to be displaey in the status line
@@ -37,14 +38,21 @@ var hunted = 2888574;
 
 var layerControl = false;
 
+var events = [];
+var EventLayer;
+
 /**
  * This function loads the map from the GBIF mapo interface and presents it 
  * as an overlay on the open streetmap
  * 
  * @param {any} anchor  - location on the screen
- * @param {any} gbifId  - gbfid of the species of interest.
+ * @param {an     	log.info("getData 2");
+        	// process data
+        	y} gbifId  - gbfid of the species of interest.
  *
- /* const osmurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+ */
+
+/*const osmurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
     const osmattribution = "&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors";
     const gbifurl = "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + gbifId + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds";
     const gbifattribution = "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors";
@@ -74,15 +82,13 @@ const showMap = function (center, anchor, species) {
         var gbifMap = L.tileLayer(GBIFurl(species), { atribution: "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors" })
         var map = L.map(anchor, { center: center, zoom: 4, layers: [topoMap, gbifMap] }  );
 
-        log.info("requesting events")
-
-        var EventsLayer = getEventData(eventSources);
+        EventLayer = L.geoJSON().addTo(map);
 
         if(layerControl === null) {  // var layerControl set to false in init phase; 
             log.info("Adding layerconrol to map");
-            layerControl = L.control.layers( {"Topology": topoMap}, { "GBIF": gbifMap }).addTo(map);
+            layerControl = L.control.layers( {"Topology": topoMap}, { "GBIF": gbifMap }, {"Events": EventLayer}).addTo(map);
         }       
-        layerControl.addOverlay(EventsLayer, "Events");
+        layerControl.addOverlay(EventLayer, "Events");
         status("Loading done");
     }
     catch( error ) {
@@ -102,6 +108,47 @@ function getSelection(anchor) {
     return e.options[e.selectedIndex].value;
 }
 
+/*
+ * redraw tjhe screen
+ */
+const redraw = function() {
+	log.info("redraw");
+
+	showMap( BERLIN, "hunter", hunter );
+	showMap( BERLIN, "mouse", hunted );
+
+
+	$("lbl-hunter").innerHTML = "Species: " + hunter;
+	$("lbl-pray").innerHTML = "Species: " + hunted;
+}
+
+/**
+ * load event data and process the result after the interacton is donw
+ */
+const getData = function () {
+	var myChain = new Chain();
+
+	myChain.chain(
+		function() {
+            getEventData(eventSources, myChain);
+        },
+		function() {
+        	var i = 0;
+        	
+        	for( i in events) {
+        		if( events[i] !== null && events[i].titile !== null) {
+        			log.info( events[i].title)
+        			EventLayer.addData(events[i].geometries);
+        		}
+        		
+        	}
+            redraw(); 
+            
+        }
+	)
+	myChain.callChain();
+}
+
 /**
  * We draw when the document is available 
  */
@@ -109,38 +156,44 @@ document.addEventListener("DOMContentLoaded", function() {
     log.info("DOM Tree loaded");
 
     const categories = jetpack.read("category.json", "json");
-    
-    var select = document.createElement("select");
-    select.setAttribute("Id", "event-sources" );
-
-    categories.categories.forEach( function(o, index) {
-        var option = document.createElement("option");
-        option.text = o.title;
-        select.add(option);
-    });
-
-    var location = document.getElementById("sources");
-    location.appendChild(select);
-    
-    eventSources = getSelection( "event-sources")
-    hunter = getSelection( "inp-hunter");
-    hunted = getSelection("inp-hunted");
-
    
+    // creating the event selection box document.getElementById("event-sources");
+    var location = document.getElementById("event-sources");
+    categories.categories.forEach( function(o, index) {
+    		var option = new Element( "option", 
+        		{ id: "event-selection",
+    			  value: o.value,
+    			  html: o.title,
+        		  events: {
+        		     change: function() { redraw() } 
+        		  }
+        		}); 
+    		location.add(option);
+    });
+ 
+    var selectedEvent = getSelection( "event-sources");
+ 
+    eventSources = document.getElementById("event-sources")   
+    eventSources.addEventListener( "change", function() {
+    	redraw();
+    } )
+
+    $("inp-hunter").addEventListener( "change", function() {
+        hunter = getSelection("inp-hunter");
+    	redraw();
+    })
+    
+    $("inp-hunted").addEventListener( "change", function() {
+    	hunted = getSelection("inp-hunted");
+    	redraw();
+    })
+        		
     showMap( BERLIN, "hunter", hunter );
     showMap( BERLIN, "pray", hunted );
  
     $("btn-refresh").addEvent("click", function() {
-        log.info("REFRESH");
-     
-        showMap( BERLIN, "hunter", hunter );
-        showMap( BERLIN, "mouse", hunted );
-
-        getEventData(eventSources);
-
-        $("lbl-hunter").innerHTML = "Species: " + hunter;
-        $("lbl-pray").innerHTML = "Species: " + hunted;
-   
+    	log.info("Refresh");
+    	getData();
     });
 });    /** end of DONContentsLoaded */
 
@@ -150,10 +203,10 @@ document.addEventListener("DOMContentLoaded", function() {
  * 
  * @param {*} source 
  */
-const getEventData = function (source) {
-    log.info("getEventData(" + source + ")");
+const getEventData = function (source, myChain) {
+    log.info("getEventData(" + source + "myChain: " + myChain + ")");
 
-    // create a new Class instance
+    // request the data
     var myRequest = new Request({
         url: 'https://eonet.sci.gsfc.nasa.gov/api/v2.1/events',
         method: 'get',
@@ -162,9 +215,13 @@ const getEventData = function (source) {
         },
         onSuccess: function(responseText){
             var o = JSON.parse(responseText)
-            for (var key in o) {
-                log.info("key:" + key + " " + o[key]);
-            }
+            //for(var i in o.events ) {
+            //	log.info( o.events[i].title );
+            //	log.info( o.events[i].geometries );
+            //}
+            events = o.events;
+            
+            myChain.callChain(events);
         },
         onFailure: function(){
             log.error("Sorry, your request failed");
@@ -173,8 +230,6 @@ const getEventData = function (source) {
 
     myRequest.send({ source: source });
 }
-
-
 
 /**
  * GBIF API Inteface
