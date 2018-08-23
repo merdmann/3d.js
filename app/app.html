@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Traveling genes</title>
 </head>
-  <!-- fix: http://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined --> 
+  <!-- fix: http://stackoverflow.com/questions/32621988/electron-jquery-is-not-defined -->
   <!-- Insert this line above script imports  -->
   <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
   <!--[if lt IE 9 ]>
@@ -13,11 +13,11 @@
   <!--[endif]-->
   <link rel="stylesheet" href="asset/Skeleton-2.0.4/css/normalize.css">
   <link rel="stylesheet" href="asset/Skeleton-2.0.4/css/skeleton.css">
-    
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css"
       integrity="sha512-07I2e+7D8p6he1SIM+1twR5TIrhUQn9+I6yjqD53JQjFiMf8EtC93ty0/5vJTZGF8aAocvHYNEDJajGdNx1IsQ=="
       crossorigin=""/>
-      
+
    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"
       integrity="sha512-A7vV8IFfih/D732iSSKi20u/ooOfj/AGehOKq0f4vLT1Zr2Y+RX7C+w8A1gaSasGtRUZpF/NZgzSAu4/Gc41Lg=="
       crossorigin="">
@@ -26,14 +26,14 @@
    <script src="asset/mootools/MooTools-Core-1.6.0.js"></script>
    <script src="asset/mootools/MooTools-More-1.6.0.js"></script>
 
- 
+
 <!-- 	<link rel="stylesheet" type="text/css" href="asset/leaflet-openweathermap.css" /> -->
 <!--	<script type="text/javascript" src="asset/leaflet-openweathermap.js"></script> -->
 
   <!-- Insert this line after script imports -->
   <script>if (window.module) module = window.module;</script>
-  
-<body>  
+
+<body>
 
 <div>
 <select id="inp-hunter">
@@ -50,9 +50,9 @@
 </select>
 <select id="event-sources">
 </select>
-<button id="btn-refresh" class="ink-button green" type="button">Refresh</button> 
+<button id="btn-refresh" class="ink-button green" type="button">Refresh</button>
 </div>
-<div class="row"> 
+<div class="row">
 <h2>Hunter<label id="lbl-hunter"></label></h2>
 <div class="six columns" id="hunter" style="height: 500px; width: 700px" ></div>
 </div>
@@ -63,10 +63,10 @@
 <div class="six columns" id="pray" style="height: 500px; width: 700px" ></div>
 </div>
 
-<script src="app.js"></script>    
+<script src="app.js"></script>
 
-<div>        
-	<div class="row" id="statusbar-info" 
+<div>
+	<div class="row" id="statusbar-info"
 	   style="position: fixed; bottom: -10px; left: 0px; width: 100%; color: #fff; background: #000;">
     </div>
 </div>

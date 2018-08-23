@@ -1,7 +1,7 @@
 "use strict";
 /*
  * https://stackoverflow.com/questions/40646403/how-to-interact-with-the-controls-of-an-electron-app-using-spectron
- * 
+ *
  */
 const path = require('path');
 const chai = require('chai');
@@ -43,7 +43,7 @@ describe('application launch', function () {
 
   it( "refresh the screen", function () {
     var btnRefresh = this.app.client.element('//button/*[text(),Refresh]');
-    
+
     this.app.client.waitUntilWindowLoaded();
     console.log("btnRefresh" + btnRefresh );
     btnRefresh.click();
@@ -51,5 +51,4 @@ describe('application launch', function () {
     // check the result
 
   });
-  
 })

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 
 // Small helpers you might want to keep
@@ -22,19 +22,21 @@ var map = null;
 const manifest = appDir.read("package.json", "json");
 
 const BERLIN = [50.507222, 13.145833];
-	
+
 /**
- * 
+ *
  * @param {string} warning - some text to be displaey in the status line
  * of the app!
  */
-const status = function (warning) {
-    document.getElementById("statusbar-info").innerHTML = warning; 
-}
+/**const status = function (warning) {
+    document.getElementById("statusbar-info").innerHTML = warning;
+}**/
+
+/* status("Startup ...............");*/
 
 var eventSources = null;
 var hunter = 2480517;
-var hunted = 2888574; 
+var hunted = 2888574;
 
 var layerControl = false;
 
@@ -42,11 +44,11 @@ var events = [];
 var EventLayer;
 
 /**
- * This function loads the map from the GBIF mapo interface and presents it 
+ * This function loads the map from the GBIF mapo interface and presents it
  * as an overlay on the open streetmap
- * 
+ *
  * @param {any} anchor  - location on the screen
- * @param {an     	log.info("getData 2");
+ * @param log.info("getData 2");
         	// process data
         	y} gbifId  - gbfid of the species of interest.
  *
@@ -56,7 +58,7 @@ var EventLayer;
     const osmattribution = "&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors";
     const gbifurl = "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + gbifId + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds";
     const gbifattribution = "&copy; <a href=\"http://www.gbif.org/terms/data-user\">Global Bio Divesity Facility</a> contributors";
-    
+
     const topomapurl = "http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
     const topomapattribution = "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet";
 */
@@ -66,15 +68,15 @@ const OSMurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + key + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds" };
 
 /**
- * 
- * @param {latlong*} center 
- * @param {string} anchor - the html elemenmte where thr maps should go 
+ *
+ * @param {latlong*} center
+ * @param {string} anchor - the html elemenmte where thr maps should go
  * @param {*} species  -- gbifg code f the sepcies to show
  */
 const showMap = function (center, anchor, species) {
 
 	var map = [];
-	
+
     try {
         log.info("showMap(" + center + ", " + anchor + ")");
         var layerControl = null;
@@ -86,12 +88,12 @@ const showMap = function (center, anchor, species) {
 
         EventLayer = L.geoJSON().addTo(map[anchor]);
 
-        if(layerControl === null) {  // var layerControl set to false in init phase; 
+        if(layerControl === null) {  // var layerControl set to false in init phase;
             log.info("Adding layerconrol to map");
             layerControl = L.control.layers( {"Topology": topoMap}, { "GBIF": gbifMap }, {"Events": EventLayer}).addTo(map[anchor]);
-        }       
+        }
         layerControl.addOverlay(EventLayer, "Events");
-        status("Loading done");
+        //status("Loading done");
     }
     catch( error ) {
         log.error( "Exception: " + error )
@@ -101,9 +103,9 @@ const showMap = function (center, anchor, species) {
 
 /**
  *  get the selected species from the HTML docucment
- * 
- * @param {any} 
- * @returns 
+ *
+ * @param {any}
+ * @returns
  */
 function getSelection(anchor) {
     var  e = document.getElementById(anchor);
@@ -131,50 +133,50 @@ const getExternalData = function () {
 	var myChain = new Chain();
 
 	myChain.chain(
-		function() { 
+		function() {
             getEventData(eventSources, myChain);
         },
 		function() {
         	var i = 0;
-        	
+
         	for( i in events) {
         		if( events[i] !== null && events[i].title !== null) {
         			log.info( events[i])
         			EventLayer.addData(events[i].geometries);
         		}
-        		
+
         	}
-            //redraw(); 
+            //redraw();
         }
 	)
 	myChain.callChain();
 }
 
 /**
- * We draw when the document is available 
+ * We draw when the document is available
  */
-document.addEventListener("DOMContentLoaded", function() {  
+document.addEventListener("DOMContentLoaded", function() {
     log.info("DOM Tree loaded");
 
     const categories = jetpack.read("category.json", "json");
-   
+
     // creating the event selection box document.getElementById("event-sources");
     var location = document.getElementById("event-sources");
     categories.categories.forEach( function(o, index) {
-    		var option = new Element( "option", 
+    		var option = new Element( "option",
         		{ id: "event-selection",
     			  value: o.value,
     			  html: o.title,
         		  events: {
-        		     change: function() { redraw() } 
+        		     change: function() { redraw() }
         		  }
-        		}); 
+        		});
     		location.add(option);
     });
- 
+
     var selectedEvent = getSelection( "event-sources");
- 
-    eventSources = document.getElementById("event-sources")   
+
+    eventSources = document.getElementById("event-sources")
     eventSources.addEventListener( "change", function() {
     	redraw();
     } )
@@ -183,15 +185,15 @@ document.addEventListener("DOMContentLoaded", function() {
         hunter = getSelection("inp-hunter");
     	redraw();
     })
-    
+
     $("inp-hunted").addEventListener( "change", function() {
     	hunted = getSelection("inp-hunted");
     	redraw();
     })
-        		
+
     showMap( BERLIN, "hunter", hunter );
     showMap( BERLIN, "pray", hunted );
- 
+
     $("btn-refresh").addEvent("click", function() {
     	log.info("Refresh");
     	getExternalData();
@@ -199,10 +201,10 @@ document.addEventListener("DOMContentLoaded", function() {
 });    /** end of DONContentsLoaded */
 
 /**
- * 
+ *
  * https://eonet.sci.gsfc.nasa.gov/docs/v2.1
- * 
- * @param {*} source 
+ *
+ * @param {*} source
  */
 const getEventData = function (source, myChain) {
     log.info("getEventData(" + source + "myChain: " + myChain + ")");
@@ -221,7 +223,7 @@ const getEventData = function (source, myChain) {
             //	log.info( o.events[i].geometries );
             //}
             events = o.events;
-            
+
             myChain.callChain(events);
         },
         onFailure: function(){
@@ -242,12 +244,11 @@ const GBIF_Species = function (name, cb ) {
     $.ajax({
         type: "GET",
         url: "http://api.gbif.org/v1/species/match",
-        dataType: "json",  
+        dataType: "json",
         contentType: "application/json; charset=utf-8",
 
         data: $.param({ name: name}),
         headers: { "Authorization": "Basic " + btoa( username + ":" + password )},
         success: function( resp ) { cb(resp); },
     }).done( function () {console.log("Auth done")});
-
 };
