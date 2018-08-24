@@ -31,12 +31,9 @@ if (env.name !== 'production') {
 }
 
 app.on('ready', () => {
-  setApplicationMenu();
+    setApplicationMenu();
 
-  const mainWindow = createWindow('main', {
-    width: 1000,
-    height: 600,
-  });
+    const mainWindow = createWindow('main', { width: 1000,height: 600 });
 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname,"app.html"),
