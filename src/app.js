@@ -89,7 +89,7 @@ const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/til
  * @param {string} anchor - the html elemenmte where thr maps should go
  * @param {*} species  -- gbifg code f the sepcies to show
  */
-const showMap = function (center, anchor, species) {
+ const showMap = function (center, anchor, species) {
 
 	var map = [];
 
@@ -124,19 +124,18 @@ const showMap = function (center, anchor, species) {
  * @returns
  */
 var getSelection = function(anchor) {
-	var e = document.getElementById(anchor);
+	var e = $$(anchor);
 	return e.options[e.selectedIndex].value;
 }
 
 /*
- * redraw tjhe screen
+ * redraw the screen
  */
 const redraw = function() {
 	log.info("redraw");
 
 	showMap( BERLIN, "hunter", hunter );
 	showMap( BERLIN, "mouse", hunted );
-
 
 	$("lbl-hunter").innerHTML = "Species: " + hunter;
 	$("lbl-pray").innerHTML = "Species: " + hunted;
@@ -175,38 +174,37 @@ document.addEventListener("DOMContentLoaded", function() {
 
 	const categories = jetpack.read("category.json", "json");
 
-	// creating the event selection box document.getElementById("event-sources");
-
 	categories.categories.forEach( function(o) {
-		var location = document.getElementById("event-sources");
+		log.info("Category " + o.id + ", " + o.title);
+		var location = $("event-sources");
 		var option = new Element( "option",
-			{ id   : "event-selection",
-				value: o.value,
-				html : o.title,
+			{ id    : "event-selection",
+				value : o.id,
+				html  : o.title,
 				events: {
 					change: function() { redraw(); }
-				},
-			}, location.add(option)
-		) /* Element */;
-	});
+				}
+			});
+		location.append(option);
+	}); /* forEach */
 
 
-  var selectedEvent = getSelection( "event-sources");
+	var selectedEvent = getSelection("event-sources");
 
-	eventSources = document.getElementById("event-sources")
-	eventSources.addEventListener( "change", function() {
+	eventSources = $$("event-sources")
+	eventSources.addEventListener("change", function() {
 		redraw();
 	});
 
-	$("inp-hunter").addEventListener( "change", function() {
+	$("inp-hunter").addEventListener("change", function() {
 		hunter = getSelection("inp-hunter");
 		redraw();
-	})
+	});
 
-	$("inp-hunted").addEventListener( "change", function() {
+	$("inp-hunted").addEventListener("change", function() {
 		hunted = getSelection("inp-hunted");
 		redraw();
-	})
+	});
 
 	showMap( BERLIN, "hunter", hunter );
 	showMap( BERLIN, "pray", hunted );
