@@ -115,7 +115,7 @@ const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/til
 		log.error( "Exception: " + error );
 	}
 	return map[anchor];
-}
+};
 
 /**
  *  get the selected species from the HTML docucment

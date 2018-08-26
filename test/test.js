@@ -21,11 +21,10 @@ global.before(function () {
 describe('application launch', function () {
   this.timeout(10000);
 
-
   beforeEach(function () {
     this.app = new Application({
-      "path" : electron,
-      "args" : [appPath]
+      "path" : "..\\node_modules\\electron\\dist\\electron.exe",
+      "args" : ["..\\app\\background.js"]
     })
     return this.app.start();
   })
