@@ -26,17 +26,18 @@ describe('application launch', function () {
       "path" : "..\\node_modules\\electron\\dist\\electron.exe",
       "args" : ["..\\app\\background.js"]
     })
+    chaiAsPromised.transferPromiseness = this.app.transferPromiseness
     return this.app.start();
   })
 
-  afterEach(function () {
-    if (this.app && this.app.isRunning()) {
-      return this.app.stop()
+  after(function () {
+    if ( this.app && this.app.isRunning()) {
+      return this.app.stop();
     }
   })
 
   it( "it shows the right title", function () {
-    return this.app.client.waitUntilWindowLoaded().getTitle().should.eventually.equal("TRaveling Gemes")
+    return this.app.client.waitUntilWindowLoaded().getTitle().should.eventually.equal("Traveling genes")
   })
 
 
