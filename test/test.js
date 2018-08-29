@@ -6,8 +6,8 @@
 const path = require('path');
 const chai = require('chai');
 const chaiAsPromised = require('chai-as-promised');
-
 const appPath = path.join(__dirname, '..', "app", "background.js");
+const electronPath = path.join(__dirname, "..", "node_modules", "electron", "dist", "electron.exe");
 
 const Application = require('spectron').Application;
 const assert = require('assert');
@@ -22,27 +22,30 @@ describe('application launch', function () {
   this.timeout(10000);
 
   beforeEach(function () {
-    this.app = new Application({
-      "path" : "..\\node_modules\\electron\\dist\\electron.exe",
-      "args" : ["..\\app\\background.js"]
-    })
+    console.log("before ++++++");
+    this.app = new Application({ "path" : electronPath, "args" : [ appPath ] })
     chaiAsPromised.transferPromiseness = this.app.transferPromiseness
     return this.app.start();
   })
 
   after(function () {
+    console.log("after +++++");
     if ( this.app && this.app.isRunning()) {
       return this.app.stop();
     }
   })
 
   it( "it shows the right title", function () {
-    return this.app.client.waitUntilWindowLoaded().getTitle().should.eventually.equal("Traveling genes")
+    console.log("test ++++++");
+    const title=this.app.client.getTitle();
+
+    console.log("title :" + title);
+    return title.should.eventually.equal("Traveling genes");
   })
 
 
   it( "refresh the screen", function () {
-    var btnRefresh = this.app.client.element('//button/*[text(),Refresh]');
+    var btnRefresh = this.app.client.element('button/*[text(),Refresh]');
 
     this.app.client.waitUntilWindowLoaded();
     console.log("btnRefresh" + btnRefresh );
