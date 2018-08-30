@@ -57,7 +57,7 @@ var hunted = 2888574;
 var layerControl = false;
 
 var events = [];
-var EventLayer;
+var EventLayer = null;
 
 /**
  * This function loads the map from the GBIF mapo interface and presents it
@@ -78,11 +78,12 @@ const gbifattribution = "&copy; <a href=\"http://www.gbif.org/terms/data-user\">
 const topomapurl = "http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
 const topomapattribution = "&copy; <a href=\"http://www.openstreetmap.org/copyright\">OpenStreet";
 
+*/
 
 const TopoURL ="http://{s}.tile.opentopomap.org/{z}/{x}/{y}.png";
 const OSMurl = "http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/tile?x={x}&y={y}&z={z}&type=TAXON&key=" + key + "&layer=OBS_2010_2020&layer=LIVING&palette=yellows_reds" };
-*/
+
 /**
  *
  * @param {latlong*} center
@@ -98,7 +99,8 @@ const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/til
 		var layerControl = null;
 
 		//  the topology map
-	  var topoMap = L.tileLayer(TopoURL, { attribution: "<a href=\"http://www.openstreetmap.org/copyright>\"OpenStreet\"</a>"});
+	  var topoMap = L.tileLayer(TopoURL, { attribution: 
+            "<a href=\"http://www.openstreetmap.org/copyright>\"OpenStreet\"</a>"});
 		var gbifMap = L.tileLayer(GBIFurl(species), { atribution: "<a href=\"http://www.gbif.org/terms/data-user/>Global Bio Divesity Facility contributors\"" });
 		map[anchor] = L.map(anchor, { center: center, zoom: 4, layers: [topoMap, gbifMap] }  );
 
@@ -124,7 +126,8 @@ const GBIFurl = function( key ) { return "http://api.gbif.org/v1/map/density/til
  * @returns
  */
 var getSelection = function(anchor) {
-	var e = $$(anchor);
+    console.log("getSelection(" + anchor + ")");
+	var e = $(anchor);
 	return e.options[e.selectedIndex].value;
 }
 
@@ -188,10 +191,9 @@ document.addEventListener("DOMContentLoaded", function() {
 		location.append(option);
 	}); /* forEach */
 
-
 	var selectedEvent = getSelection("event-sources");
 
-	eventSources = $$("event-sources")
+	eventSources = $("event-sources")
 	eventSources.addEventListener("change", function() {
 		redraw();
 	});
